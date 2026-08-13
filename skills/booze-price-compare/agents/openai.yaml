@@ -1,0 +1,4 @@
+interface:
+  display_name: "Booze Price Compare"
+  short_description: "Compare Australian booze prices by $/L"
+  default_prompt: "Compare the requested booze products across the configured retailers and return one table ranked by price per litre."

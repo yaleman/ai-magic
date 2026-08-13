@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "retailers": [
+    {
+      "id": "dan-murphys",
+      "name": "Dan Murphy's",
+      "domains": [
+        "danmurphys.com.au",
+        "www.danmurphys.com.au"
+      ],
+      "entry_urls": [
+        "https://www.danmurphys.com.au/",
+        "https://www.danmurphys.com.au/list/jack-daniels"
+      ],
+      "query_hints": [
+        "Prefer exact product-detail pages.",
+        "Capture member and non-member prices separately when both are shown.",
+        "Stock and delivery can be location-dependent; do not infer without a resolved store/postcode."
+      ]
+    },
+    {
+      "id": "bws",
+      "name": "BWS",
+      "domains": [
+        "bws.com.au",
+        "www.bws.com.au"
+      ],
+      "entry_urls": [
+        "https://bws.com.au/"
+      ],
+      "query_hints": [
+        "Prefer exact product-detail pages.",
+        "Separate multi-buy promotions from ordinary single-item pricing.",
+        "Stock and delivery can be location-dependent; do not infer without a resolved store/postcode."
+      ]
+    },
+    {
+      "id": "bobs-bulk-booze",
+      "name": "Bob's Bulk Booze",
+      "domains": [
+        "bobsbulkbooze.com.au",
+        "www.bobsbulkbooze.com.au"
+      ],
+      "entry_urls": [
+        "https://bobsbulkbooze.com.au/"
+      ],
+      "query_hints": [
+        "Check whether the displayed price is per bottle, pack, case, or bulk quantity.",
+        "Set pack_quantity explicitly for bulk offers.",
+        "Prefer exact product-detail pages over collection/search pages."
+      ]
+    }
+  ]
+}

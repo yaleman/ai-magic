@@ -1,0 +1,28 @@
+[
+  {
+    "retailer": "Example Retailer",
+    "product": "Jack Daniel's Old No. 7 Tennessee Whiskey",
+    "size_ml": 1000,
+    "pack_quantity": 1,
+    "price_aud": 74.9,
+    "offer_type": "public",
+    "offer_label": null,
+    "availability": "in_stock",
+    "delivery_aud": null,
+    "source_url": "https://example.invalid/jack-daniels-old-no-7-1l",
+    "observed_at": "2026-08-12T22:00:00+10:00"
+  },
+  {
+    "retailer": "Example Retailer",
+    "product": "Gentleman Jack Tennessee Whiskey",
+    "size_ml": 700,
+    "pack_quantity": 1,
+    "price_aud": 63.0,
+    "offer_type": "member",
+    "offer_label": "Member offer",
+    "availability": "in_stock",
+    "delivery_aud": null,
+    "source_url": "https://example.invalid/gentleman-jack-700ml",
+    "observed_at": "2026-08-12T22:00:00+10:00"
+  }
+]
