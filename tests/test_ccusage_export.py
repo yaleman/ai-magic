@@ -7,12 +7,12 @@ from unittest.mock import Mock, patch
 import httpx
 import pytest
 
-import ccusage_splunk
+from ai_magic import ccusage_splunk
 
 
 def settings(url: str = "https://splunk.example") -> ccusage_splunk.Settings:
     return ccusage_splunk.Settings.model_validate(
-        {"splunk_hostname": url, "splunk_hec_token": "test-token"}
+        {"splunk_base_url": url, "splunk_hec_token": "test-token"}
     )
 
 
@@ -49,8 +49,8 @@ def test_export_posts_each_daily_record_then_totals() -> None:
     ]
 
     with (
-        patch("ccusage_splunk.subprocess.run", return_value=completed),
-        patch("ccusage_splunk.httpx.Client", return_value=client),
+        patch("ai_magic.ccusage_splunk.subprocess.run", return_value=completed),
+        patch("ai_magic.ccusage_splunk.httpx.Client", return_value=client),
     ):
         ccusage_splunk.export(settings())
 
@@ -87,7 +87,7 @@ def test_settings_accept_cli_values(monkeypatch: pytest.MonkeyPatch) -> None:
         "argv",
         [
             "ccusage-export",
-            "--splunk-hostname",
+            "--splunk-base-url",
             "https://collector.example",
             "--splunk-hec-token",
             "cli-token",
@@ -115,7 +115,7 @@ def test_read_ccusage_rejects_invalid_datasets(payload: object, message: str) ->
     )
 
     with (
-        patch("ccusage_splunk.subprocess.run", return_value=completed),
+        patch("ai_magic.ccusage_splunk.subprocess.run", return_value=completed),
         pytest.raises(ccusage_splunk.ExportError, match=message),
     ):
         ccusage_splunk.read_ccusage()
@@ -126,7 +126,7 @@ def test_read_ccusage_rejects_command_failure_and_invalid_json() -> None:
         ccusage_splunk.CCUSAGE_COMMAND, 3, stdout="", stderr="database unavailable"
     )
     with (
-        patch("ccusage_splunk.subprocess.run", return_value=failed),
+        patch("ai_magic.ccusage_splunk.subprocess.run", return_value=failed),
         pytest.raises(ccusage_splunk.ExportError, match="exit code 3"),
     ):
         ccusage_splunk.read_ccusage()
@@ -135,7 +135,7 @@ def test_read_ccusage_rejects_command_failure_and_invalid_json() -> None:
         ccusage_splunk.CCUSAGE_COMMAND, 0, stdout="not json", stderr=""
     )
     with (
-        patch("ccusage_splunk.subprocess.run", return_value=invalid_json),
+        patch("ai_magic.ccusage_splunk.subprocess.run", return_value=invalid_json),
         pytest.raises(ccusage_splunk.ExportError, match="invalid JSON"),
     ):
         ccusage_splunk.read_ccusage()
@@ -160,8 +160,8 @@ def test_export_stops_after_first_hec_failure() -> None:
     client.post.return_value = response
 
     with (
-        patch("ccusage_splunk.subprocess.run", return_value=completed),
-        patch("ccusage_splunk.httpx.Client", return_value=client),
+        patch("ai_magic.ccusage_splunk.subprocess.run", return_value=completed),
+        patch("ai_magic.ccusage_splunk.httpx.Client", return_value=client),
         pytest.raises(ccusage_splunk.ExportError, match="2026-08-24"),
     ):
         ccusage_splunk.export(settings())
