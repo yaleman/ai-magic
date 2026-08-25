@@ -120,6 +120,9 @@ def upload_event(
         raise ExportError(f"HEC returned invalid JSON for {description}") from error
     if not isinstance(hec_response, Mapping) or hec_response.get("code") != 0:
         raise ExportError(f"HEC rejected {description}: {hec_response!r}")
+    print(
+        f"Successfully sent '{description}' to {settings.hec_endpoint}", file=sys.stderr
+    )
 
 
 def export(settings: Settings) -> None:
