@@ -59,9 +59,10 @@ def current_local_time() -> datetime:
     return datetime.now().astimezone()
 
 
-def with_event_time(event: dict[str, Any], now: datetime) -> dict[str, Any]:
+def with_event_time(event: dict[str, Any]) -> dict[str, Any]:
     """Add a Splunk event timestamp using its period or the supplied local time."""
     period = event.get("period")
+    now = current_local_time().replace(hour=0, minute=0, second=0, microsecond=0)
     if period is None:
         timestamp = now
     elif isinstance(period, str):
@@ -222,13 +223,10 @@ def upload_event(
 def export(settings: Settings) -> None:
     """Export split agent events in daily order followed by aggregate totals."""
     daily, totals = read_ccusage()
-    now = current_local_time()
     with httpx.Client(timeout=30.0) as client:
         for dataset, event, description in daily_events(daily):
-            upload_event(
-                client, settings, dataset, with_event_time(event, now), description
-            )
-        upload_event(client, settings, "totals", with_event_time(totals, now), "totals")
+            upload_event(client, settings, dataset, with_event_time(event), description)
+        upload_event(client, settings, "totals", with_event_time(totals), "totals")
 
 
 def main() -> int:

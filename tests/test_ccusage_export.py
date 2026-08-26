@@ -124,7 +124,7 @@ def test_export_splits_daily_records_into_agent_events_then_totals() -> None:
 
 def test_with_event_time_rejects_an_invalid_period() -> None:
     with pytest.raises(ccusage_splunk.ExportError, match="not an ISO date"):
-        ccusage_splunk.with_event_time({"period": "not-a-date"}, export_time())
+        ccusage_splunk.with_event_time({"period": "not-a-date"})
 
 
 def test_endpoint_uses_the_configured_url_port() -> None:
