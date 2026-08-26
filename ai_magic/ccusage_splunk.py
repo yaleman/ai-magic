@@ -5,7 +5,8 @@ from __future__ import annotations
 import json
 import subprocess
 import sys
-from collections.abc import Mapping
+from collections.abc import Iterator, Mapping
+from datetime import date, datetime, time
 from typing import Any
 
 import httpx
@@ -45,12 +46,101 @@ class Settings(BaseSettings):
     def hec_endpoint(self) -> httpx.URL:
         """Return the collector endpoint below the configured base URL."""
         return httpx.URL(str(self.splunk_base_url)).copy_with(
-            path=HEC_EVENT_PATH, query=None
+            path=HEC_EVENT_PATH, query=b"auto_extract_timestamp=true"
         )
 
 
 class ExportError(Exception):
     """An expected ccusage or HEC export failure."""
+
+
+def current_local_time() -> datetime:
+    """Return the current timezone-aware local time."""
+    return datetime.now().astimezone()
+
+
+def with_event_time(event: dict[str, Any], now: datetime) -> dict[str, Any]:
+    """Add a Splunk event timestamp using its period or the supplied local time."""
+    period = event.get("period")
+    if period is None:
+        timestamp = now
+    elif isinstance(period, str):
+        try:
+            period_date = date.fromisoformat(period)
+        except ValueError as error:
+            raise ExportError(
+                f"ccusage period is not an ISO date: {period!r}"
+            ) from error
+        timestamp = datetime.combine(period_date, time(), tzinfo=now.tzinfo)
+    else:
+        raise ExportError("ccusage period must be a string")
+
+    return {**event, "time": timestamp.timestamp()}
+
+
+def daily_events(
+    daily: list[dict[str, Any]],
+) -> Iterator[tuple[str, dict[str, Any], str]]:
+    """Split ccusage daily records into searchable agent statistics and models."""
+    for daily_record in daily:
+        period = daily_record.get("period")
+        if period is not None and not isinstance(period, str):
+            raise ExportError("ccusage daily entries must contain a period string")
+        period_fields = {"period": period} if period is not None else {}
+        period_description = period or "an unknown period"
+
+        agents = daily_record.get("agents", [])
+        if not isinstance(agents, list) or not all(
+            isinstance(agent, Mapping) for agent in agents
+        ):
+            raise ExportError("ccusage daily agents must be a list of objects")
+
+        agent_models: list[Mapping[str, Any]] = []
+        for agent in agents:
+            agent_name = agent.get("agent")
+            if not isinstance(agent_name, str):
+                raise ExportError("ccusage daily agents must contain an agent string")
+
+            model_breakdowns = agent.get("modelBreakdowns", [])
+            if not isinstance(model_breakdowns, list) or not all(
+                isinstance(model, Mapping) for model in model_breakdowns
+            ):
+                raise ExportError(
+                    "ccusage agent modelBreakdowns must be a list of objects"
+                )
+
+            for model in model_breakdowns:
+                agent_models.append(model)
+                yield (
+                    "agent:model",
+                    {**model, "agent": agent_name, **period_fields},
+                    f"agent model event for {agent_name} during {period_description}",
+                )
+
+        model_breakdowns = daily_record.get("modelBreakdowns", [])
+        if not isinstance(model_breakdowns, list) or not all(
+            isinstance(model, Mapping) for model in model_breakdowns
+        ):
+            raise ExportError("ccusage daily modelBreakdowns must be a list of objects")
+
+        unmatched_agent_models = list(agent_models)
+        for model in model_breakdowns:
+            if model in unmatched_agent_models:
+                unmatched_agent_models.remove(model)
+                continue
+            yield (
+                "agent:model",
+                {**model, **period_fields},
+                f"aggregate model event during {period_description}",
+            )
+
+        for agent in agents:
+            yield (
+                "agent:stats",
+                {key: value for key, value in agent.items() if key != "modelBreakdowns"}
+                | period_fields,
+                f"agent stats event for {agent['agent']} during {period_description}",
+            )
 
 
 def read_ccusage() -> tuple[list[dict[str, Any]], dict[str, Any]]:
@@ -98,14 +188,18 @@ def upload_event(
     if settings.dry_run:
         print(f"Would send '{description}' to {settings.hec_endpoint}: {event}")
         return
+    payload = {
+        "event": event,
+        "index": settings.splunk_index,
+        "sourcetype": f"ccusage:{dataset}",
+    }
+
+    if "time" in event:
+        payload["time"] = event.pop("time")
     response = client.post(
         settings.hec_endpoint,
         headers={"Authorization": f"Splunk {settings.splunk_hec_token}"},
-        json={
-            "event": event,
-            "index": settings.splunk_index,
-            "sourcetype": f"ccusage:{dataset}",
-        },
+        json=payload,
     )
     try:
         response.raise_for_status()
@@ -126,13 +220,15 @@ def upload_event(
 
 
 def export(settings: Settings) -> None:
-    """Export daily entries in order followed by the aggregate totals."""
+    """Export split agent events in daily order followed by aggregate totals."""
     daily, totals = read_ccusage()
+    now = current_local_time()
     with httpx.Client(timeout=30.0) as client:
-        for item in daily:
-            period = item.get("period", "unknown period")
-            upload_event(client, settings, "daily", item, f"daily event for {period}")
-        upload_event(client, settings, "totals", totals, "totals")
+        for dataset, event, description in daily_events(daily):
+            upload_event(
+                client, settings, dataset, with_event_time(event, now), description
+            )
+        upload_event(client, settings, "totals", with_event_time(totals, now), "totals")
 
 
 def main() -> int:
