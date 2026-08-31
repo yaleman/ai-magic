@@ -10,6 +10,8 @@ Use the Ruminate API to create, validate, update, version, and execute workflows
 
 Read [references/workflow-api.md](references/workflow-api.md) before issuing workflow requests.
 
+This assumes `https://example.com` is where Ruminate is hosted. If the user provides a different base URL, use that instead.
+
 ## Workflow
 1. Fetch and inspect the live API spec from `https://example.com/api-doc/openapi.json`.
 2. Confirm authentication context (session cookie or bearer token) before calling protected endpoints.

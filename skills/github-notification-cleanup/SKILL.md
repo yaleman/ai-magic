@@ -32,8 +32,8 @@ Use the pull request's actual `user.login` and `merged_at` fields. Do not infer 
 The script uses the GitHub CLI, follows notification pagination, caches repeated PR lookups, and is idempotent:
 
 ```sh
-zsh -lic 'python3 /Users/yaleman/.codex/skills/github-notification-cleanup/scripts/cleanup.py'
-zsh -lic 'python3 /Users/yaleman/.codex/skills/github-notification-cleanup/scripts/cleanup.py --apply'
+zsh -lic 'python3 scripts/cleanup.py'
+zsh -lic 'python3 scripts/cleanup.py --apply'
 ```
 
 The first command is a dry run. `--apply` is required for the write operation.

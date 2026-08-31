@@ -1,15 +1,15 @@
 # Workflow API Reference
 
 ## Source of truth
-- OpenAPI JSON: `https://m1.housenet.yaleman.org:9000/api-doc/openapi.json`
+- OpenAPI JSON: `https://example.com/api-doc/openapi.json`
 
 ## Quick inspection commands
 ```bash
-curl -sS https://m1.housenet.yaleman.org:9000/api-doc/openapi.json | jq '.paths | keys[]' | rg '/api/v1/workflows|/api/v1/runs'
+curl -sS https://example.com/api-doc/openapi.json | jq '.paths | keys[]' | rg '/api/v1/workflows|/api/v1/runs'
 ```
 
 ```bash
-curl -sS https://m1.housenet.yaleman.org:9000/api-doc/openapi.json | jq '.paths["/api/v1/workflows"]'
+curl -sS https://example.com/api-doc/openapi.json | jq '.paths["/api/v1/workflows"]'
 ```
 
 ## Core endpoints
@@ -29,28 +29,28 @@ curl -sS https://m1.housenet.yaleman.org:9000/api-doc/openapi.json | jq '.paths[
 ## Minimal call patterns
 Validate:
 ```bash
-curl -sS -X POST https://m1.housenet.yaleman.org:9000/api/v1/workflows/validate \
+curl -sS -X POST https://example.com/api/v1/workflows/validate \
   -H 'content-type: application/json' \
   -d '{"name":"example","dag_text":"{\"nodes\":[],\"edges\":[]}"}'
 ```
 
 Create:
 ```bash
-curl -sS -X POST https://m1.housenet.yaleman.org:9000/api/v1/workflows \
+curl -sS -X POST https://example.com/api/v1/workflows \
   -H 'content-type: application/json' \
   -d '{"name":"example","dag_text":"{\"nodes\":[],\"edges\":[]}"}'
 ```
 
 Update:
 ```bash
-curl -sS -X PUT https://m1.housenet.yaleman.org:9000/api/v1/workflows/<workflow_id> \
+curl -sS -X PUT https://example.com/api/v1/workflows/<workflow_id> \
   -H 'content-type: application/json' \
   -d '{"name":"example","dag_text":"{\"nodes\":[],\"edges\":[]}"}'
 ```
 
 Trigger run:
 ```bash
-curl -sS -X POST https://m1.housenet.yaleman.org:9000/api/v1/workflows/<workflow_id>/runs \
+curl -sS -X POST https://example.com/api/v1/workflows/<workflow_id>/runs \
   -H 'content-type: application/json' \
   -d '{"input":{},"run_kind":"run","execution_policy":"fail_fast"}'
 ```
