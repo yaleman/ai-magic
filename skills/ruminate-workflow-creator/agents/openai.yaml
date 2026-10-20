@@ -1,4 +1,4 @@
 interface:
-  display_name: "Workflow Creator"
+  display_name: "Ruminate Workflow Creator"
   short_description: "Create workflows using the Ruminate API"
-  default_prompt: "Create or update a workflow via the Ruminate API using the OpenAPI spec."
+  default_prompt: "Use $ruminate-workflow-creator to create or update a workflow using a real configured Ruminate endpoint."

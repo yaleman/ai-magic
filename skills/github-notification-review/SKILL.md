@@ -41,10 +41,10 @@ Use the pull request's actual metadata, not notification text, to classify it:
 
 ## Bundled review script
 
-The script performs the feed, PR metadata, and open-PR check collection. It emits JSON for reliable summarization:
+Resolve `<skill-dir>` to the absolute directory containing the loaded `SKILL.md` (including when loaded from a repository or symlink). Pass it as a quoted positional argument; do not infer it from the current repository or a fixed home directory. The script performs the feed, PR metadata, and open-PR check collection and emits JSON:
 
 ```sh
-zsh -lic 'python3 /Users/yaleman/.codex/skills/github-notification-review/scripts/review.py --json'
+zsh -lic 'exec python3 "$1/scripts/review.py" --json' skill-review "<skill-dir>"
 ```
 
 Run it with network access if the sandbox blocks GitHub API requests. The script never performs GitHub writes.

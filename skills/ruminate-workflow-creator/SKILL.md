@@ -1,17 +1,27 @@
 ---
-name: workflow-creator
-description: Create or update Ruminate workflows through the API. Use when a user asks to build, edit, validate, version, trigger, rerun, or inspect a workflow and you should drive `/api/v1/workflows*` and `/api/v1/runs*` endpoints from the OpenAPI spec at `https://example.com/api-doc/openapi.json`.
+name: ruminate-workflow-creator
+description: Create or update Ruminate workflows through the API. Use when a user asks to build, edit, validate, version, trigger, rerun, or inspect a workflow and you should drive `/api/v1/workflows*` and `/api/v1/runs*` endpoints from its configured OpenAPI spec. The documented `https://example.com:9000` URL is a placeholder that must be replaced before use.
 ---
 
-# Workflow Creator
+# Ruminate Workflow Creator
 
 ## Overview
 Use the Ruminate API to create, validate, update, version, and execute workflows. Start from the live OpenAPI spec, then call only the endpoints needed for the request.
 
 Read [references/workflow-api.md](references/workflow-api.md) before issuing workflow requests.
 
+## Configure the endpoint before use
+
+`https://example.com:9000` is a documentation placeholder, not a configured
+Ruminate service. Do not send requests to it. Obtain the real base URL from the
+user or an explicitly configured `RUMINATE_BASE_URL` before making any request.
+If it is missing or its hostname is `example.com` (or a subdomain), stop and ask
+for a real endpoint. Do not guess a host. Use the configured base URL for all
+OpenAPI, workflow and run requests; keep deployment URLs and credentials out of
+tracked source.
+
 ## Workflow
-1. Fetch and inspect the live API spec from `https://example.com/api-doc/openapi.json`.
+1. Resolve the real configured base URL as described above, then fetch and inspect its `/api-doc/openapi.json`.
 2. Confirm authentication context (session cookie or bearer token) before calling protected endpoints.
 3. Validate or normalize incoming DAG JSONC when a user provides workflow content.
 4. Create or update the workflow with the minimum required payload.
