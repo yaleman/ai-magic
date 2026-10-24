@@ -9,6 +9,7 @@ dependencies = [
     "lmstudio>=1.5.0",
     "pillow>=12.3.0",
     "pydantic-settings>=2.12.0",
+    "tomlkit>=0.15.2",
 ]
 
 [dependency-groups]
@@ -20,6 +21,7 @@ dev = [
 
 [project.scripts]
 "ccusage-splunk" = "ai_magic.ccusage_splunk:main"
+"codex-config-sync" = "ai_magic.codex_sync_cli:main"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

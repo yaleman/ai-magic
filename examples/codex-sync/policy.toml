@@ -1,0 +1,7 @@
+# Selected user preferences only. App/runtime/security keys cannot be owned.
+schema_version = 1
+keys = ["model", "model_reasoning_effort", "personality", "web_search", "tui.status_line", "tui.status_line_use_colors"]
+plugins = []
+
+[skills]
+example-skill = "{CODEX_HOME}/skills/example-skill/SKILL.md"
